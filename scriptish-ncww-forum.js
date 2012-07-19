@@ -1,11 +1,12 @@
 // ==UserScript==
-// @id             https://bitbucket.org/Manfre/scriptish-ncww-forum-helper
+// @id             manfre-ncww-forum-helper
+// @updateUrl      https://raw.github.com/manfre/scriptish-ncww-forum/stable/scriptish-ncww-forum.js
 // @name           NCWW Forum Helper
 // @version        1.0
 // @namespace      http://www.ncwoodworker.net
 // @author         Michael Manfre
 // @description    UI Improvements to the NCWW forum
-// @homepage       https://bitbucket.org/Manfre/scriptish-ncww-forum-helper
+// @homepage       https://github.com/manfre/scriptish-ncww-forum
 // @domain         ncwoodworker.net
 // @domain         www.ncwoodworker.net
 // @include        /https?:\/\/(?:www\.)ncwoodworker.net\/.*/i
