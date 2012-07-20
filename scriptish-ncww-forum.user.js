@@ -2,7 +2,7 @@
 // @id             manfre-ncww-forum-helper
 // @updateUrl      http://userscripts.org/scripts/source/125648.user.js
 // @name           NCWW Forum Helper
-// @version        1.1
+// @version        1.2b1
 // @namespace      http://www.ncwoodworker.net
 // @author         Michael Manfre
 // @description    UI Improvements to the NCWW forum
@@ -14,17 +14,26 @@
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js
 // ==/UserScript==
 
+var icons = {
+	collapse: '<img src="/forums/images/buttons/collapse_40b.png" style="width: 13px; height: 13px;" />',
+	expand: '<img src="/forums/images/buttons/collapse_40b_collapsed.png" style="width: 13px; height: 13px;" />'
+};
+
 var ncww = {
+	defaults: {
+		event_collapse_timeout: 86400 * 3 * 1000 // 3 days in ms
+	},
+	
     init: function(){
     	ncww.load_settings();
         ncww.add_styles();
         
+		ncww.collapse_upcoming_events();        
         ncww.cleanup_navbar();
         ncww.linkify_location(ncww.city);
         ncww.init_debug_toggle();
         ncww.hide_embedded_iframes();
         ncww.register_menus();
-        
     },
 
     register_menus: function(){
@@ -33,6 +42,7 @@ var ncww = {
 
     load_settings: function(){
         ncww.city = GM_getValue('city', '');
+        ncww.event_collapse_timestamp = GM_getValue('event_collapse_timestamp', (new Date(0)).toISOString());
     },
 
     update_city: function(){
@@ -112,6 +122,30 @@ var ncww = {
     
     cleanup_navbar: function(){
     	$('#navbar').find('li:contains(Place Holder)').hide();
+    },
+    
+    /*
+    Add collapse button to events box. Choice is remembered for event_collapse_timeout days.
+    */
+    collapse_upcoming_events: function(){
+    	var $this = $('.blockhead h2:contains(Special Events in the next 90 day)'),
+    		$info = $this.parent().nextAll('.blockrow'),
+    		auto_collapse = (new Date() - new Date(ncww.event_collapse_timestamp) <= ncww.defaults.event_collapse_timeout),
+    		$collapse = $('<a href="#" class="collapse">' + icons.collapse + '</a>').toggle(function(){
+    			$(this).html(icons.expand);
+    			$info.hide();
+    			// record timestamp of collapse outside of window
+    			if (!auto_collapse)
+	    			GM_setValue('event_collapse_timestamp', (new Date()).toISOString());
+    		}, function(){
+    			$(this).html(icons.collapse);
+    			$info.show();
+    			GM_setValue('event_collapse_timestamp', new Date(0).toISOString());
+    			auto_collapse = false;
+    		});
+    	$this.parent().addClass('collapse').end().before($collapse);
+    	
+    	if (auto_collapse) $collapse.click();
     }
 };
 
