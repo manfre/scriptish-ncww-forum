@@ -1,6 +1,6 @@
 // ==UserScript==
 // @id             manfre-ncww-forum-helper
-// @updateUrl      https://raw.github.com/manfre/scriptish-ncww-forum/stable/scriptish-ncww-forum.js
+// @updateUrl      http://userscripts.org/scripts/source/125648.user.js
 // @name           NCWW Forum Helper
 // @version        1.0
 // @namespace      http://www.ncwoodworker.net
@@ -10,11 +10,39 @@
 // @domain         ncwoodworker.net
 // @domain         www.ncwoodworker.net
 // @include        /https?:\/\/(?:www\.)ncwoodworker.net\/.*/i
-// @run-at         document-idle
+// @run-at         document-end
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js
 // ==/UserScript==
 
 var ncww = {
+    init: function(){
+        ncww.add_styles();
+        
+        ncww.linkify_location(ncww.city);
+        ncww.init_debug_toggle();
+        ncww.hide_embedded_iframes();
+        ncww.register_menus();
+    },
+
+    register_menus: function(){
+        GM_registerMenuCommand('Configure NCWW Helper', ncww.update_city, 'c');
+    },
+
+    load_settings: function(){
+        ncww.city = GM_getValue('city', '');
+    },
+
+    update_city: function(){
+        ncww.city = prompt('Enter your City, State');
+        GM_setValue('city', ncww.city);
+        ncww.linkify_location(ncww.city);
+    },
+    
+    add_styles: function(){
+        GM_addStyle('.iframe-wrapper { border: 1px solid #ccc; background-color: #ffffee }');
+        GM_addStyle('.iframe-wrapper a { margin-bottom: 5px; display: inline-block }');
+    },
+    
     map_link: function(from, to, text){
         var q = from ? from + ' to ' + to : to;
         return '<a target="_map" href="http://maps.google.com/?q=' + encodeURIComponent(q) + '">' + text + '</a>';
@@ -23,9 +51,9 @@ var ncww = {
     linkify_location: function(city){
         // Linkify poster's location
         $('dl.userinfo_extra dt:contains(Location)').each(function(){
-        	var loc = $(this).next();
-        	var to = $.trim(loc.text());        	
-        	loc.replaceWith('<dd>' + ncww.map_link(city, to, loc.text()) + '</dd>');
+            var loc = $(this).next();
+            var to = $.trim(loc.text());            
+            loc.replaceWith('<dd>' + ncww.map_link(city, to, loc.text()) + '</dd>');
         });
         
         // User profile
@@ -64,22 +92,22 @@ var ncww = {
     init_debug_toggle: function(){
         $('#debuginfo').hide().before('<div id="toggledebug">Toggle Debug Info</div>');
         $('#toggledebug').click(function(){
-        	$('#debuginfo').toggle();
+            $('#debuginfo').toggle();
+        });
+    },
+    
+    hide_embedded_iframes: function(){
+        $('div[id^=post_message_] iframe').each(function(){
+            var $this = $(this).hide(),
+                src = $this.attr('src').replace('&output=embed', '') || '',
+                toggler = $('<h3>Toggle Map</h3>').click(function(){ $this.toggle() }),
+                link = $('<a href="' + src + '" target="_map" title="Open map in new window">' + src + '</a>');
+                
+            $this.wrap('<div class="iframe-wrapper" />').before(toggler).before(link);
         });
     }
 };
 
 
-var settings = {
-    city: GM_getValue('city', 'Cary, NC'),
-    update_city: function(){
-        settings.city = prompt('Enter your City, State');
-        GM_setValue('city', settings.city);
-        ncww.linkify_location(settings.city);
-    }
-};
 
-ncww.linkify_location(settings.city);
-ncww.init_debug_toggle();
-
-GM_registerMenuCommand('Configure NCWW Helper', settings.update_city, 'c');
+ncww.init();
