@@ -16,12 +16,15 @@
 
 var ncww = {
     init: function(){
+    	ncww.load_settings();
         ncww.add_styles();
         
+        ncww.cleanup_navbar();
         ncww.linkify_location(ncww.city);
         ncww.init_debug_toggle();
         ncww.hide_embedded_iframes();
         ncww.register_menus();
+        
     },
 
     register_menus: function(){
@@ -105,6 +108,10 @@ var ncww = {
                 
             $this.wrap('<div class="iframe-wrapper" />').before(toggler).before(link);
         });
+    },
+    
+    cleanup_navbar: function(){
+    	$('#navbar').find('li:contains(Place Holder)').hide();
     }
 };
 
