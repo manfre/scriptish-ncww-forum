@@ -2,7 +2,7 @@
 // @id             manfre-ncww-forum-helper
 // @updateUrl      http://userscripts.org/scripts/source/125648.user.js
 // @name           NCWW Forum Helper
-// @version        1.0
+// @version        1.1
 // @namespace      http://www.ncwoodworker.net
 // @author         Michael Manfre
 // @description    UI Improvements to the NCWW forum
